@@ -1,0 +1,348 @@
+---
+title: "Cox-regression"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+metaclusters <- read.csv("C:/LocalData/nuplyyt/cyto/celltypes/round_april/tumor_for_plots_metacluster_noCK7_kmeans_MST_splitEMT.csv")
+
+counts <- data.frame("Sample"=1:44,"Epithelial"=rep(0,44),"Proliferating epithelial"=rep(0,44),
+                     "EMT"=rep(0,44),"Mesenchymal"=rep(0,44),"Proliferating EMT"=rep(0,44),
+                     "Hyperfunctional epithelial"=rep(0,44),"Apoptotic"=rep(0,44),
+                     "Negative"=rep(0,44),"Total"=rep(0,44))
+
+counts$Sample <- unique(metaclusters$Sample)
+names(counts)[3] <- "Proliferating epithelial"
+names(counts)[6] <- "Proliferating EMT"
+names(counts)[7] <- "Functional epithelial"
+
+for (i in unique(metaclusters$Sample)){
+  patient <- metaclusters[metaclusters$Sample==i,]
+  row <- which(counts$Sample==i)
+  
+  for (celltype in names(counts)[2:9]){
+    counts[row, celltype] <- nrow(patient[patient$Metacluster == celltype,])
+  }
+  
+  counts[row,10] <- nrow(patient)
+}
+
+
+tma <- read.csv("C:/LocalData/nuplyyt/cyto/celltypes/images/maybe_paper/all_data_TMA_surv.csv")
+tma <- tma[(tma$Identifier %in% counts$Sample),]
+
+
+all_immune <- read.csv("C:/LocalData/nuplyyt/cyto/celltypes/round_april/tsi_for_plots_immune_new.csv")
+all_immune$Subtype <- as.character(all_immune$Subtype)
+all_immune$Subtype[all_immune$Subtype=="mDC"] <- "APC"
+all_immune$Subtype[all_immune$Subtype=="pDC"] <- "APC"
+immuneclusters <- read.csv("C:/LocalData/nuplyyt/cyto/celltypes/round_april/tsi_for_plots_immune_new.csv")
+immuneclusters$Subtype <- as.character(immuneclusters$Subtype)
+immuneclusters$Subtype[which(immuneclusters$Subtype == "pDC")] <- "APC"
+immuneclusters$Subtype[which(immuneclusters$Subtype == "mDC")] <- "APC"
+
+counts.i <- data.frame("Sample"=1:44,"CD8"=rep(0,44),"M2.macrop"=rep(0,44),
+                     "B.cells"=rep(0,44),"APC"=rep(0,44),"M1.macrop"=rep(0,44),
+          "T.regs"=rep(0,44),"Neutrophils"=rep(0,44),"CD4"=rep(0,44),"Total"=rep(0,44))
+
+counts.i$Sample <- unique(immuneclusters$Sample)
+for (i in unique(immuneclusters$Sample)){
+  patient <- immuneclusters[immuneclusters$Sample==i,]
+  row <- which(counts.i$Sample==i)
+  
+  for (celltype in names(counts.i)[2:9]){
+    counts.i[row, celltype] <- nrow(patient[patient$Subtype == celltype,])
+  }
+  
+  counts.i[row,10] <- nrow(patient)
+}
+
+prop.i <- data.frame("Sample"=1:44,"CD8"=rep(0,44),"M2.macrop"=rep(0,44),"B.cells"=rep(0,44),"APC"=rep(0,44),"M1.macrop"=rep(0,44),"T.regs"=rep(0,44),"Neutrophils"=rep(0,44),"CD4"=rep(0,44))
+prop.i$Sample <- unique(all_immune$Sample)
+for (i in unique(all_immune$Sample)){
+  patient <- all_immune[all_immune$Sample==i,]
+  row <- which(prop.i$Sample==i)
+  
+  for (celltype in names(prop.i)[2:9]){
+    prop.i[row, celltype] <- nrow(patient[patient$Subtype == celltype,])/nrow(patient)
+  }
+}
+prop.i <- merge(prop.i, tma[,c(1,5,20,27,32,33)], by.x="Sample", by.y="Identifier")
+
+library(survminer)
+require("survival")
+library(vegan)
+
+simpson <- diversity(counts[,1:9], MARGIN = 1)
+simps <- data.frame(sample=unique(metaclusters$Sample), simpson)
+simpson.i <- diversity(counts.i, MARGIN = 1)
+simps.i <- data.frame(sample=unique(immuneclusters$Sample), simpson.i)
+
+clinical <- read.csv("C:/LocalData/nuplyyt/all_data_TMA_annotation.csv")
+clinical$Sample <- sub("id","",clinical$Sample)
+clinical$PFI[which(clinical$PFI=="medium")] <- "short"
+clinical$PFI <- factor(clinical$PFI)
+simp <- cbind(simps, simps.i[,2], clinical[,2:3])
+names(simp)[3] <- "simpson.i"
+
+brca  <- simp[simp$Type == "BRCA1/2 mutated",]
+brca$Type <- rep("BRCAmut",31)
+wt    <- simp[simp$Type == "HRwt",]
+data  <- rbind(brca,wt)
+data$Type <- as.factor(data$Type)
+short <- data[data$PFI == "short",]
+long  <- data[data$PFI == "long",]
+
+datac <- merge(data[,c(1:3)], tma[,c(1,5,20,27,32,33)], by.x="sample", by.y="Identifier")
+```
+
+## CD4 and BRCA - Univariate
+
+```{r}
+res.cox <- coxph(Surv(OS_time, status_OS) ~ CD4, data = prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+ggcoxfunctional(Surv(OS_time, status_OS) ~ CD4 + sqrt(CD4), data = prop.i) # + log(CD4)
+```
+
+```{r}
+res.cox <- coxph(Surv(OS_time, status_OS) ~ Type, data = prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+```
+
+```{r}
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ CD4, data = prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+ggcoxfunctional(Surv(OS_time, status_OS) ~ CD4 + sqrt(CD4), data = prop.i) # + log(CD4)
+```
+
+```{r}
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ Type, data = prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+```
+
+## CD4 and BRCA - Multivariate
+
+```{r}
+
+res.cox <- coxph(Surv(OS_time, status_OS) ~ CD4 + Type, data =  prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+```
+
+```{r}
+
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ CD4 + Type, data =  prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+```
+
+## Immune proportions - Univariate
+
+```{r}
+res.cox <- coxph(Surv(OS_time, status_OS) ~ CD4, data = prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+ggcoxfunctional(Surv(OS_time, status_OS) ~ CD4 + sqrt(CD4), data = prop.i) # + log(CD4)
+```
+
+```{r}
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ CD4, data = prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+ggcoxfunctional(Surv(PFI_time, status_PFI) ~ CD4 + sqrt(CD4), data = prop.i) # + log(CD4)
+```
+
+```{r}
+res.cox <- coxph(Surv(OS_time, status_OS) ~ APC, data = prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+ggcoxfunctional(Surv(OS_time, status_OS) ~ APC + sqrt(APC), data = prop.i) # + log(APC)
+```
+
+```{r}
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ APC, data = prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+ggcoxfunctional(Surv(PFI_time, status_PFI) ~ APC + sqrt(APC), data = prop.i) # + log(APC)
+```
+
+```{r}
+res.cox <- coxph(Surv(OS_time, status_OS) ~ T.regs, data = prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+ggcoxfunctional(Surv(OS_time, status_OS) ~ T.regs + sqrt(T.regs), data = prop.i) # + log(APC)
+```
+
+```{r}
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ T.regs, data = prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+ggcoxfunctional(Surv(PFI_time, status_PFI) ~ T.regs + sqrt(T.regs), data = prop.i) # + log(APC)
+```
+
+```{r}
+res.cox <- coxph(Surv(OS_time, status_OS) ~ CD8, data = prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+ggcoxfunctional(Surv(OS_time, status_OS) ~ CD8 + sqrt(CD8), data = prop.i) # + log(CD4)
+```
+
+```{r}
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ CD8, data = prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+ggcoxfunctional(Surv(PFI_time, status_PFI) ~ CD8 + sqrt(CD8), data = prop.i) # + log(CD4)
+```
+
+## Immune proportions - Multivariate
+
+```{r}
+res.cox <- coxph(Surv(OS_time, status_OS) ~ CD4 + CD8 + T.regs + APC, data =  prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+```
+
+```{r}
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ CD4 + CD8 + T.regs + APC, data =  prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+```
+
+```{r}
+res.cox <- coxph(Surv(OS_time, status_OS) ~ CD4 + CD8 + T.regs + APC + Type, data =  prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+```
+
+```{r}
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ CD4 + CD8 + T.regs + APC + Type, data =  prop.i)
+summary(res.cox)
+
+cox.zph(res.cox)
+```
+
+## Heterogeneity - Univariate
+
+```{r}
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ simpson, data = datac)
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+ggcoxfunctional(Surv(PFI_time, status_PFI) ~ simpson + sqrt(simpson), data = datac) # + log()
+```
+
+```{r}
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ simpson.i, data = datac)
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+ggcoxfunctional(Surv(PFI_time, status_PFI) ~ simpson.i + sqrt(simpson.i), data = datac) # + log()
+```
+
+## Heterogeneity - Multivariate
+
+```{r}
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ simpson + simpson.i + Type, data =  datac)
+summary(res.cox)
+
+cox.zph(res.cox)
+```
+
+```{r}
+res.cox <- coxph(Surv(OS_time, status_OS) ~ simpson + simpson.i + Type, data =  datac)
+summary(res.cox)
+
+cox.zph(res.cox)
+```
+
+
+## Inside BRCA
+
+```{r}
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ CD4, data = prop.i[prop.i$Type=="BRCA1/2 mutated",])
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+ggcoxfunctional(Surv(PFI_time, status_PFI) ~ CD4 + sqrt(CD4), data = prop.i[prop.i$Type=="BRCA1/2 mutated",]) # + log(CD4)
+```
+
+```{r}
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ CD4 + CD8, data = prop.i[prop.i$Type=="BRCA1/2 mutated",])
+summary(res.cox)
+
+cox.zph(res.cox)
+```
+
+```{r}
+res.cox <- coxph(Surv(OS_time, status_OS) ~ CD4, data = prop.i[prop.i$Type=="BRCA1/2 mutated",])
+summary(res.cox)
+
+cox.zph(res.cox)
+ggcoxdiagnostics(res.cox, type = "dfbeta", linear.predictions = TRUE)
+ggcoxdiagnostics(res.cox, type = "deviance", linear.predictions = TRUE)
+ggcoxfunctional(Surv(OS_time, status_OS) ~ CD4 + sqrt(CD4), data = prop.i[prop.i$Type=="BRCA1/2 mutated",]) # + log(CD4)
+```
+
+```{r}
+res.cox <- coxph(Surv(OS_time, status_OS) ~ CD4 + CD8, data = prop.i[prop.i$Type=="BRCA1/2 mutated",])
+summary(res.cox)
+
+cox.zph(res.cox)
+```
