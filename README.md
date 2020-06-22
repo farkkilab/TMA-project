@@ -1,9 +1,11 @@
 # TMA-project
-Cox_reg = R Markdown code for different cox regressions.
+Cox_reg = R Markdown code for different cox regressions (docx is in datacloud).
 
-Heatmap = tumor metaclusters heatmap and compositions barplot.
+Heatmap = tumor metaclusters heatmap and tumor/immune/stroma/endothelial compositions barplot.
 
-Simpsons = heterogeneity analyses. Ss-umap = semi-supervised umaps.
+Simpsons = heterogeneity analyses.
+
+Ss-umap = semi-supervised umaps.
 
 Survival = Kaplan-Meiers.
 
