@@ -17,7 +17,7 @@ df[which(df$GlobalCellType == "Endothelia"), "Subtype"] <- "Endothelia"
 df[which(df$Subtype == "Stroma_Endothelia"), "Subtype"] <- "Stroma"
 
 df$Subtype <- as.factor(df$Subtype)
-#df <- df[-which(df$Subtype == "Other"),]
+
 
 # n_neighbors = 20, verbose = TRUE, n_epochs = 250, spread=5, n_threads = 3, fast_sgd = TRUE, min_dist = 0.1,metric = "euclidean"
 cell_type <- df$Subtype
