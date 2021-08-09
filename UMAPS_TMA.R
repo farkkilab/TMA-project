@@ -1,13 +1,16 @@
 
 ############### DATA ############################################################################################
+library(viridis)
+library(ggplot2)
 
-all_celltypes_24092020 <- read.csv("C:/LocalData/ingamari/cell_type_calling/TMA1_celltypes/data/all_cells_TMA_24092020.csv")
+
+all_celltypes <- read.csv("TMA_annotated_single_cell_data.csv")
 
 
 #################################################################################################################
 ################   GLOBAL CELL TYPE UMAPS #######################################################################
 
-df <- all_celltypes_24092020[, c("Sample","CD163","CD20","CD4","CD3d","CD8a", "CD45",
+df <- all_celltypes[, c("Sample","CD163","CD20","CD4","CD3d","CD8a", "CD45", "pSTAT1", "P21", "Ki67", "PDL1", "PD1", "cCasp3",
                                  "FOXP3","IBA1","CK7","CD11c","Ecadherin","vimentin", "CD31","Subtype", "GlobalCellType")]
 
 
@@ -17,11 +20,9 @@ df[which(df$GlobalCellType == "Endothelia"), "Subtype"] <- "Endothelia"
 df[which(df$Subtype == "Stroma_Endothelia"), "Subtype"] <- "Stroma"
 
 df$Subtype <- as.factor(df$Subtype)
-
-
-# n_neighbors = 20, verbose = TRUE, n_epochs = 250, spread=5, n_threads = 3, fast_sgd = TRUE, min_dist = 0.1,metric = "euclidean"
+#2:14
 cell_type <- df$Subtype
-umap_s = uwot::umap(df[,c(2:14)],n_neighbors = 80, scale=T ,spread=1, min_dist = 0.5,n_epochs = 50)
+umap_s = uwot::umap(df[,c(2:20)],n_neighbors = 80, scale=T ,spread=1, min_dist = 0.5,n_epochs = 50)
 uplot = data.frame(x = umap_s[,1], y= umap_s[,2])
 cell_type <- df$Subtype
 mycolors <- colorRampPalette(brewer.pal(8, "Dark2"))(4)
@@ -30,18 +31,21 @@ p = ggplot(uplot,aes(x,y, color=cell_type))+ geom_point(size=0.3, stroke=0, alph
   theme(legend.title = element_blank())+ guides(color = guide_legend(override.aes = list(size=5))) + 
   scale_color_manual(values=mycolors) + theme_bw() + coord_fixed(ratio=1)+
   guides(colour = guide_legend(override.aes = list(size=5, shape=15, alpha=1), direction="horizontal", ncol=1, label.position="bottom", byrow=F)) + 
-  xlab("umap1") + ylab("umap2")+ theme(legend.position="none")
+  xlab("umap1") + ylab("umap2")+ theme(legend.position="none") + ylim(-10, 10) + theme(aspect.ratio=1)
 print(p)
+
+
 
 ####################### COLORED BY MARKER ####################################################################
 
-for (i in c(2:14)){
+for (i in c(2:20)){
   markers <- df[, i]
   p = ggplot(uplot,aes(x,y, color=markers))+ geom_point(size=0.3, stroke=0, alpha=0.7)+ 
     guides(color = guide_legend(override.aes = list(size=5))) + 
     theme_bw() + coord_fixed(ratio=1)+ 
     xlab("umap1") + ylab("umap2") + ggtitle(colnames(df)[i])
   print(p)
+  
 }
 
 ####################### COLORED BY PATIENT OF ORIGIN #########################################################
@@ -49,21 +53,19 @@ Patient <- as.factor(df$Sample)
 n <- 44
 qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
 mycolors = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
-#mycolors <- colorRampPalette(qual_col_pals)
-#mycolors <- colorRampPalette(brewer.pal(8, "Dark2"))(4)
 p1 = ggplot(uplot,aes(x,y, color=Patient))+ geom_point(size=0.3, stroke=0, alpha=0.7)+ 
   scale_fill_viridis(discrete = TRUE) + 
   theme(legend.title = element_blank())+ guides(color = guide_legend(override.aes = list(size=5))) + 
   theme_bw() + coord_fixed(ratio=1)+scale_color_manual(values=mycolors) +
   guides(colour = guide_legend(override.aes = list(size=5, shape=15, alpha=1), direction="horizontal", ncol=3, label.position="bottom", byrow=F)) + 
-  xlab("umap1") + ylab("umap2") + theme(legend.position="none") + xlim(-12, 10) + ylim(-12, 10)
+  xlab("umap1") + ylab("umap2") + theme(legend.position="none", aspect.ratio=1) + xlim(-10, 10) + ylim(-10, 10)
 print(p1)
 
 
 ##############################################################################################################
 ##################### IMMUNE CELL UMAPS ######################################################################
 
-all_celltypes_24092020 <- read.csv("C:/LocalData/ingamari/cell_type_calling/TMA1_celltypes/data/all_cells_TMA_24092020.csv")
+all_celltypes_24092020 <- read.csv("TMA_annotated_single_cell_data.csv")
 
 all_celltypes_24092020$GlobalCellType <- as.character(all_celltypes_24092020$GlobalCellType)
 
@@ -112,8 +114,7 @@ for (i in c(2:10)){
 ################################################################################################################
 ####################### STROMAL CELL UMAPS #####################################################################
 
-all_celltypes_24092020 <- read.csv("C:/LocalData/ingamari/cell_type_calling/TMA1_celltypes/data/all_cells_TMA_24092020.csv")
-
+all_celltypes_24092020 <- read.csv("TMA_annotated_single_cell_data.csv")
 all_celltypes_24092020$GlobalCellType <- as.character(all_celltypes_24092020$GlobalCellType)
 
 all_celltypes_24092020[which(all_celltypes_24092020$GlobalCellType == "High-PDL1"), "GlobalCellType"] <- "Functional stroma"
@@ -157,8 +158,7 @@ for (i in c(2:9)){
 ##################################################################################################################
 ########################## TUMOR CELL UMAPS ######################################################################
 
-all_celltypes_24092020 <- read.csv("C:/LocalData/ingamari/cell_type_calling/TMA1_celltypes/data/all_cells_TMA_24092020.csv")
-
+read.csv("TMA_annotated_single_cell_data.csv")
 all_celltypes_24092020$GlobalCellType <- as.character(all_celltypes_24092020$GlobalCellType)
 
 all_celltypes_24092020[which(all_celltypes_24092020$GlobalCellType == "Hyperfunctional epithelial"), "GlobalCellType"] <- "Functional epithelial"
