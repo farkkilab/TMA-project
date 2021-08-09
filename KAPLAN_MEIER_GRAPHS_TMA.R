@@ -36,8 +36,8 @@ immune_clusters_sorted_wide <- as.data.frame(immune_clusters_sorted_wide)
 
 
 
-merged_data_TMA <- read_excel("C:/LocalData/ingamari/clinical_data/merged_data_TMA.xlsx")
-clinical_data_TMA <- read_excel("C:/LocalData/ingamari/clinical_data/clinical_data_TMA.xlsx")
+
+clinical_data_TMA <- read_excel("TMA_clinicaldata.xlsx")
 
 #creating status_PFI and status_dead
 
@@ -49,16 +49,16 @@ clinical_data_TMA$status_OS[which(clinical_data_TMA$`Deceased`=="No")] <- 0
 clinical_data_TMA$status_OS[which(clinical_data_TMA$`Deceased`=="Lost")] <- 0
 #merging merged_data_TMA and clinical_data_TMA
 
-all_data_TMA_surv <- merge(merged_data_TMA, clinical_data_TMA)
-colnames(all_data_TMA_surv)[which(names(all_data_TMA_surv)=="PFI(days)")] <- "PFI_time"
-colnames(all_data_TMA_surv)[which(names(all_data_TMA_surv)=="OS(days)")] <- "OS_time"
+all_data_TMA_surv <- clinical_data_TMA
+#colnames(all_data_TMA_surv)[which(names(all_data_TMA_surv)=="PFI(days)")] <- "PFI_time"
+#colnames(all_data_TMA_surv)[which(names(all_data_TMA_surv)=="OS(days)")] <- "OS_time"
 
 
 
-all_data_TMA_surv[which(all_data_TMA_surv$Type == "BRCA1" | all_data_TMA_surv$Type == "BRCA2"), "Type"] <- "BRCA1/2 mutated"
+all_data_TMA_surv[which(all_data_TMA_surv$Category == "BRCA1" | all_data_TMA_surv$Category == "BRCA2"), "Category"] <- "BRCA1/2 mutated"
 
 
-median_expressions <- merge(immune_clusters_sorted_wide, all_data_TMA_surv[, c("status_PFI", "PFI_time", "status_OS", "OS_time", "Type", "Identifier")], by.x="Patient", by.y="Identifier")
+median_expressions <- merge(immune_clusters_sorted_wide, all_data_TMA_surv[, c("status_PFI", "PFI_time", "status_OS", "OS_time", "Category", "Identifier")], by.x="Patient", by.y="Identifier")
 
 theme <- theme(panel.border = element_rect(colour = "black", size=1.7, fill=NA), 
                panel.background = element_blank(), plot.title=element_text(hjust=0.5)) 
@@ -75,10 +75,10 @@ for (i in seq_along(colnames(median_expressions))[c(3, 4:10, 14,16)]){
   
   median_all <- median_expressions
   
-  median_expressions_BRCA <- median_expressions[which(median_expressions$Type== "BRCA1/2 mutated"),]
+  median_expressions_BRCA <- median_expressions[which(median_expressions$Category== "BRCA1/2 mutated"),]
   
   
-  median_expressions_HR <- median_expressions[which(median_expressions$Type == "HR"),]
+  median_expressions_HR <- median_expressions[which(median_expressions$Category == "HR"),]
   
   all_data_TMA_cat <- median_all
   all_data_TMA_cat[, i] <- cut(all_data_TMA_cat[, i], breaks = c(-Inf, median(all_data_TMA_cat[, i]), Inf), labels=c("low", "high"))
@@ -155,10 +155,9 @@ for (i in seq_along(colnames(median_expressions))[c(3, 4:10, 14,16)]){
 #######################################################################################################################################################################
 ################################ KAPLAN MEIER GRAPHS FOR IMMUNE AND TUMOR SDI #########################################################################################
 #######################################################################################################################################################################
-
-simpson_data <- read.csv("C:/LocalData/ingamari/cell_type_calling/TMA1_celltypes/data/simpson_18092020.csv")
-
-simpson_data <- merge(simpson_data, all_data_TMA_surv[, c("status_PFI", "PFI_time", "status_OS", "OS_time", "Type", "Identifier")], by.x="sample", by.y="Identifier")
+#simpson data from "SIMPSON_CALC_TMA.R"
+simpson_data <- data.frame(simpson, simpson.i)
+simpson_data <- merge(simpson_data, all_data_TMA_surv[, c("status_PFI", "PFI_time", "status_OS", "OS_time", "Category", "Identifier")], by.x="sample", by.y="Identifier")
 
 theme <- theme(panel.border = element_rect(colour = "black", size=1.7, fill=NA), 
                panel.background = element_blank(), plot.title=element_text(hjust=0.5)) 
@@ -169,10 +168,10 @@ for (i in seq_along(colnames(simpson_data))[c(2:3)]){
   
   median_all <- simpson_data
   
-  median_expressions_BRCA <- simpson_data[which(simpson_data$Type.x== "BRCA1/2 mutated"),]
+  median_expressions_BRCA <- simpson_data[which(simpson_data$Category== "BRCA1/2 mutated"),]
   
   
-  median_expressions_HR <- simpson_data[which(simpson_data$Type.x == "HRwt"),]
+  median_expressions_HR <- simpson_data[which(simpson_data$Category == "HRwt"),]
   
   all_data_TMA_cat <- median_all
   all_data_TMA_cat[, i] <- cut(all_data_TMA_cat[, i], breaks = c(-Inf, median(all_data_TMA_cat[, i]), Inf), labels=c("low", "high"))
@@ -268,12 +267,12 @@ quantile(median_expressions$median_Ki67, 0.6667)
 for (i in seq_along(colnames(median_expressions))[2]){
   
   
-  all_data_TMA_cat_BRCA <- median_expressions[which(median_expressions$Type== "BRCA1/2 mutated"),]
+  all_data_TMA_cat_BRCA <- median_expressions[which(median_expressions$Category== "BRCA1/2 mutated"),]
   
   all_data_TMA_cat_BRCA[which(all_data_TMA_cat_BRCA$median_Ki67 > 9.022178), "median_Ki67"] <- "high"
   all_data_TMA_cat_BRCA[which(all_data_TMA_cat_BRCA$median_Ki67 <= 9.022178), "median_Ki67"] <- "low"
   
-  all_data_TMA_cat_HR <- median_expressions[which(median_expressions$Type == "HR"),]
+  all_data_TMA_cat_HR <- median_expressions[which(median_expressions$Category == "HR"),]
   
   all_data_TMA_cat_HR[which(all_data_TMA_cat_HR$median_Ki67 > 9.022178), "median_Ki67"] <- "high"
   all_data_TMA_cat_HR[which(all_data_TMA_cat_HR$median_Ki67 <= 9.022178), "median_Ki67"] <- "low"

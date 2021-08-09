@@ -11,6 +11,11 @@
 #who are the neighbours of prof epi cells
 
 #cell ids for each cell type
+
+
+#get all_fractions from "NEIGHBORHOOD_DOTPLOT_TMA.R"
+all_neighbor_ids <- all_fractions
+
 prof_epi_center_cells <- all_neighbour_ids[which(all_neighbour_ids$cluster == "Proliferating epithelial"),]
 cd4_center_cells <- all_neighbour_ids[which(all_neighbour_ids$cluster == "CD4"),]
 cd8_center_cells <- all_neighbour_ids[which(all_neighbour_ids$cluster == "CD8"),]
@@ -117,9 +122,9 @@ no_neighbours_prof_epi <- prof_epi_center_cells[-which(prof_epi_center_cells$Cel
 no_neighbours_prof_epi$number <- "0"
 
 
-numer_of_neifgbours_prof_epi <- rbind(n_of_neighbours_prof_epi, no_neighbours_prof_epi[, c("CellId", "number")])
+number_of_neigbours_prof_epi <- rbind(n_of_neighbours_prof_epi, no_neighbours_prof_epi[, c("CellId", "number")])
 
-all_celltypes_24092020 <- read.csv("C:/LocalData/ingamari/cell_type_calling/TMA1_celltypes/data/all_cells_TMA_24092020.csv")
+all_celltypes_24092020 <- read.csv("TMA_annotated_single_cell_data.csv")
 
 
 all_celltypes_24092020_for_neighbourhoods <- all_celltypes_24092020
@@ -127,17 +132,17 @@ all_celltypes_24092020_for_neighbourhoods <- all_celltypes_24092020
 all_celltypes_24092020_for_neighbourhoods$cores <- paste0("core", all_celltypes_24092020_for_neighbourhoods$cores,"_", all_celltypes_24092020_for_neighbourhoods$Cellid)
 
 
-numer_of_neifgbours_prof_epi <- merge(numer_of_neifgbours_prof_epi, all_celltypes_24092020_for_neighbourhoods[, c("Sample", "cores", "Ki67", "HR_defect")], by.x="CellId", by.y = "cores")
+number_of_neigbours_prof_epi <- merge(number_of_neigbours_prof_epi, all_celltypes_24092020_for_neighbourhoods[, c("Sample", "cores", "Ki67", "HR_defect")], by.x="CellId", by.y = "cores")
 
 #now scatter plot number of neighbours vs Ki67
-numer_of_neifgbours_prof_epi$HR_defect <- as.character(numer_of_neifgbours_prof_epi$HR_defect)
+number_of_neigbours_prof_epi$HR_defect <- as.character(number_of_neigbours_prof_epi$HR_defect)
 
 
 library(ggplot2)
 dodge <- position_dodge(width = 0.7)
 
-numer_of_neifgbours_prof_epi[which(numer_of_neifgbours_prof_epi$HR_defect == "0"), "HR_defect"] <- "HRwt"
-numer_of_neifgbours_prof_epi[which(numer_of_neifgbours_prof_epi$HR_defect == "1"), "HR_defect"] <- "BRCA1/2 mutated"
+number_of_neigbours_prof_epi[which(number_of_neigbours_prof_epi$HR_defect == "0"), "HR_defect"] <- "HRwt"
+number_of_neigbours_prof_epi[which(number_of_neigbours_prof_epi$HR_defect == "1"), "HR_defect"] <- "BRCA1/2 mutated"
 
 theme <- theme(panel.border = element_rect(colour = "black", size=1, fill=NA), 
                plot.title=element_text(hjust=0.5), panel.grid.major =element_blank(),
@@ -147,9 +152,9 @@ dodge <- position_dodge(width = 0.5)
 
 my_comparisons <- list(c("0BRCA1/2 mutated", "0HRwt"),c("1BRCA1/2 mutated", "1HRwt"),c("2BRCA1/2 mutated", "2HRwt"), c("3BRCA1/2 mutated", "3HRwt"))
 
-numer_of_neifgbours_prof_epi$combined <- paste0(numer_of_neifgbours_prof_epi$number, numer_of_neifgbours_prof_epi$HR_defect)
+number_of_neigbours_prof_epi$combined <- paste0(number_of_neigbours_prof_epi$number, number_of_neigbours_prof_epi$HR_defect)
 
-p <- ggplot(numer_of_neifgbours_prof_epi, aes(x=combined, y=Ki67, fill=HR_defect)) + geom_violin(position=dodge, width=1.5) + geom_boxplot(position = dodge, width=0.2)+ theme+
+p <- ggplot(number_of_neigbours_prof_epi, aes(x=combined, y=Ki67, fill=HR_defect)) + geom_violin(position=dodge, width=1.5) + geom_boxplot(position = dodge, width=0.2)+ theme+
   scale_fill_manual(values=c("#3366CC", "#CC0033")) + ggtitle("Number of CD4+ T-cells as neighbours") + stat_compare_means(method="wilcox", label = "p.signif", comparisons=my_comparisons)
 
 p
@@ -162,17 +167,17 @@ p
 
 
 dodge <- position_dodge(width = 0.7)
-numer_of_neifgbours_prof_epi$number_of_neighbours <- numer_of_neifgbours_prof_epi$number
+number_of_neigbours_prof_epi$number_of_neighbours <- number_of_neigbours_prof_epi$number
 
-numer_of_neifgbours_prof_epi$number_of_neighbours[which(numer_of_neifgbours_prof_epi$number_of_neighbours >= 1)] <- "1 or more CD4+ T-cell as neighbour"
+number_of_neigbours_prof_epi$number_of_neighbours[which(number_of_neigbours_prof_epi$number_of_neighbours >= 1)] <- "1 or more CD4+ T-cell as neighbour"
 
 library(ggpubr)
-numer_of_neifgbours_prof_epi$Sample <- as.factor(numer_of_neifgbours_prof_epi$Sample)
+number_of_neigbours_prof_epi$Sample <- as.factor(number_of_neigbours_prof_epi$Sample)
 
 #do a separate variable with n of neighbours and HR status
 #calculate values and add to plot
 
-numer_of_neifgbours_prof_epi$combined_variables <- paste0(numer_of_neifgbours_prof_epi$HR_defect,"_", numer_of_neifgbours_prof_epi$number_of_neighbours)
+number_of_neigbours_prof_epi$combined_variables <- paste0(number_of_neigbours_prof_epi$HR_defect,"_", number_of_neigbours_prof_epi$number_of_neighbours)
 
 
 
@@ -180,18 +185,18 @@ numer_of_neifgbours_prof_epi$combined_variables <- paste0(numer_of_neifgbours_pr
 
 my_comparisons <- list( c("BRCA1/2 mutated_0", "BRCA1/2 mutated_1 or more CD4+ T-cell as neighbour"), c("HRwt_0", "HRwt_1 or more CD4+ T-cell as neighbour"), c("BRCA1/2 mutated_0", "HRwt_0"), c("BRCA1/2 mutated_1 or more CD4+ T-cell as neighbour", "HRwt_1 or more CD4+ T-cell as neighbour") )
 
-p1 <- ggplot(numer_of_neifgbours_prof_epi, aes(x=combined_variables, y=Ki67, fill=HR_defect)) + geom_violin(position=dodge) + geom_boxplot(position=dodge, width=0.2)+ theme+
+p1 <- ggplot(number_of_neigbours_prof_epi, aes(x=combined_variables, y=Ki67, fill=HR_defect)) + geom_violin(position=dodge) + geom_boxplot(position=dodge, width=0.2)+ theme+
   scale_fill_manual(values=c("#3366CC", "#CC0033")) + ggtitle("Number of CD4+ T-cells as neighbours\nof proliferating epithelial cells")  + xlab("HR status") + stat_compare_means(comparisons=my_comparisons, label = "p.signif", label.y = c(11.3,11.3, 11.7, 12.1)) + ylab("Ki67 expression in proliferating epithelial cells") + theme(text = element_text(size = 15))
 p1
 
-p1 <- ggplot(numer_of_neifgbours_prof_epi, aes(x=combined_variables, y=Ki67, fill=HR_defect)) + geom_violin(position=dodge) + geom_boxplot(position=dodge, width=0.2)+ theme+
+p1 <- ggplot(number_of_neigbours_prof_epi, aes(x=combined_variables, y=Ki67, fill=HR_defect)) + geom_violin(position=dodge) + geom_boxplot(position=dodge, width=0.2)+ theme+
   scale_fill_manual(values=c("#3366CC", "#CC0033")) + ggtitle("Number of CD4+ T-cells as neighbours\nof proliferating epithelial cells")  + xlab("HR status") + stat_compare_means(comparisons=my_comparisons, label.y = c(11.3,11.3, 11.7, 12.1)) + ylab("Ki67 expression in proliferating epithelial cells") + theme(text = element_text(size = 15))
 p1
 
 #width=9, height=5.5)
 
 
-#p2 <- ggplot(numer_of_neifgbours_prof_epi, aes(x=Ki67, fill=number_of_neighbours)) + #geom_density(alpha=0.4)+ theme+ facet_grid(. ~ HR_defect) + ggtitle("Number of CD4+ T-cells as #neighbours")
+#p2 <- ggplot(number_of_neigbours_prof_epi, aes(x=Ki67, fill=number_of_neighbours)) + #geom_density(alpha=0.4)+ theme+ facet_grid(. ~ HR_defect) + ggtitle("Number of CD4+ T-cells as #neighbours")
 #p2
 
 
@@ -294,25 +299,25 @@ no_neighbours_prof_epi_cd8 <- prof_epi_center_cells[-which(prof_epi_center_cells
 no_neighbours_prof_epi_cd8$number <- "0"
 
 
-numer_of_neifgbours_prof_epi_cd8 <- rbind(n_of_neighbours_prof_epi_cd8, no_neighbours_prof_epi_cd8[, c("CellId", "number")])
+number_of_neigbours_prof_epi_cd8 <- rbind(n_of_neighbours_prof_epi_cd8, no_neighbours_prof_epi_cd8[, c("CellId", "number")])
 
 all_celltypes_24092020_for_neighbourhoods <- all_celltypes_24092020
 
 all_celltypes_24092020_for_neighbourhoods$cores <- paste0("core", all_celltypes_24092020_for_neighbourhoods$cores,"_", all_celltypes_24092020_for_neighbourhoods$Cellid)
 
 
-numer_of_neifgbours_prof_epi_cd8 <- merge(numer_of_neifgbours_prof_epi_cd8, all_celltypes_24092020_for_neighbourhoods[, c("Sample", "cores", "Ki67","PDL1", "HR_defect")], by.x="CellId", by.y = "cores")
+number_of_neigbours_prof_epi_cd8 <- merge(number_of_neigbours_prof_epi_cd8, all_celltypes_24092020_for_neighbourhoods[, c("Sample", "cores", "Ki67","PDL1", "HR_defect")], by.x="CellId", by.y = "cores")
 
 
-numer_of_neifgbours_prof_epi_cd8$HR_defect <- as.character(numer_of_neifgbours_prof_epi_cd8$HR_defect)
+number_of_neigbours_prof_epi_cd8$HR_defect <- as.character(number_of_neigbours_prof_epi_cd8$HR_defect)
 
-numer_of_neifgbours_prof_epi_cd8[which(numer_of_neifgbours_prof_epi_cd8$HR_defect == "0"), "HR_defect"] <- "HRwt"
-numer_of_neifgbours_prof_epi_cd8[which(numer_of_neifgbours_prof_epi_cd8$HR_defect == "1"), "HR_defect"] <- "BRCA1/2 mutated"
+number_of_neigbours_prof_epi_cd8[which(number_of_neigbours_prof_epi_cd8$HR_defect == "0"), "HR_defect"] <- "HRwt"
+number_of_neigbours_prof_epi_cd8[which(number_of_neigbours_prof_epi_cd8$HR_defect == "1"), "HR_defect"] <- "BRCA1/2 mutated"
 
 
-numer_of_neifgbours_prof_epi_cd8$combined <- paste0(numer_of_neifgbours_prof_epi_cd8$number, numer_of_neifgbours_prof_epi_cd8$HR_defect)
+number_of_neigbours_prof_epi_cd8$combined <- paste0(number_of_neigbours_prof_epi_cd8$number, number_of_neigbours_prof_epi_cd8$HR_defect)
 
-p3 <- ggplot(numer_of_neifgbours_prof_epi_cd8, aes(x=combined, y=Ki67, fill=HR_defect)) + geom_violin(positio=dodge) + geom_boxplot(position=dodge, width=0.1)+ theme+
+p3 <- ggplot(number_of_neigbours_prof_epi_cd8, aes(x=combined, y=Ki67, fill=HR_defect)) + geom_violin(positio=dodge) + geom_boxplot(position=dodge, width=0.1)+ theme+
   scale_fill_manual(values=c("#3366CC", "#CC0033")) + ggtitle("Number of CD8+ T-cells as neighbours") + stat_compare_means(method="wilcox.test", label="p.signf", comparisons=my_comparisons)
 p3
 
@@ -320,12 +325,12 @@ p3
 #width=12, height=4.5
 
 
-numer_of_neifgbours_prof_epi_cd8$number_of_neighbours <- numer_of_neifgbours_prof_epi_cd8$number
+number_of_neigbours_prof_epi_cd8$number_of_neighbours <- number_of_neigbours_prof_epi_cd8$number
 
-numer_of_neifgbours_prof_epi_cd8$number_of_neighbours[which(numer_of_neifgbours_prof_epi_cd8$number_of_neighbours > 0)] <- "1 or more CD8+ T-cell as neighbour"
+number_of_neigbours_prof_epi_cd8$number_of_neighbours[which(number_of_neigbours_prof_epi_cd8$number_of_neighbours > 0)] <- "1 or more CD8+ T-cell as neighbour"
 
 
-numer_of_neifgbours_prof_epi_cd8$combined_variables <- paste0(numer_of_neifgbours_prof_epi_cd8$HR_defect,"_", numer_of_neifgbours_prof_epi_cd8$number_of_neighbours)
+number_of_neigbours_prof_epi_cd8$combined_variables <- paste0(number_of_neigbours_prof_epi_cd8$HR_defect,"_", number_of_neigbours_prof_epi_cd8$number_of_neighbours)
 
 
 
@@ -333,11 +338,11 @@ numer_of_neifgbours_prof_epi_cd8$combined_variables <- paste0(numer_of_neifgbour
 
 my_comparisons <- list( c("BRCA1/2 mutated_0", "BRCA1/2 mutated_1 or more CD8+ T-cell as neighbour"), c("HRwt_0", "HRwt_1 or more CD8+ T-cell as neighbour"), c("BRCA1/2 mutated_0", "HRwt_0"), c("BRCA1/2 mutated_1 or more CD8+ T-cell as neighbour", "HRwt_1 or more CD8+ T-cell as neighbour") )
 
-p4 <- ggplot(numer_of_neifgbours_prof_epi_cd8, aes(x=combined_variables, y=Ki67, fill=HR_defect)) + geom_violin(position=dodge) + geom_boxplot(position=dodge, width=0.2)+ theme+
+p4 <- ggplot(number_of_neigbours_prof_epi_cd8, aes(x=combined_variables, y=Ki67, fill=HR_defect)) + geom_violin(position=dodge) + geom_boxplot(position=dodge, width=0.2)+ theme+
   scale_fill_manual(values=c("#3366CC", "#CC0033")) + ggtitle("Number of CD8+ T-cells as neighbours\nof proliferating epithelial cells")  + xlab("HR status") + stat_compare_means(comparisons=my_comparisons, label = "p.signif", label.y = c(11.3,11.3, 11.7, 12.1)) + ylab("Ki67 expression in proliferating epithelial cells") + theme(text = element_text(size = 15))
 p4
 
-p4 <- ggplot(numer_of_neifgbours_prof_epi_cd8, aes(x=combined_variables, y=Ki67, fill=HR_defect)) + geom_violin(position=dodge) + geom_boxplot(position=dodge, width=0.2)+ theme+
+p4 <- ggplot(number_of_neigbours_prof_epi_cd8, aes(x=combined_variables, y=Ki67, fill=HR_defect)) + geom_violin(position=dodge) + geom_boxplot(position=dodge, width=0.2)+ theme+
   scale_fill_manual(values=c("#3366CC", "#CC0033")) + ggtitle("Number of CD8+ T-cells as neighbours\nof proliferating epithelial cells")  + xlab("HR status") + stat_compare_means(comparisons=my_comparisons, label.y = c(11.3,11.3, 11.7, 12.1)) + ylab("Ki67 expression in proliferating epithelial cells") + theme(text = element_text(size = 15))
 p4
 

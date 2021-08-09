@@ -11,18 +11,16 @@ library(ggpubr)
 
 
 #ANNOTATION DATA
-all_data_TMA <- read.csv("C:/LocalData/ingamari/clinical_data/all_data_TMA.csv")
-ann <- all_data_TMA[, c("Identifier","Type", "PFI_time")]
+all_data_TMA <- read.csv("TMA_clinicaldata.csv")
+ann <- all_data_TMA[, c("Identifier","Category", "PFI_time")]
 ann$PFI_time <- as.numeric(ann$PFI_time)
 ann$PFI_time[which(ann$`PFI_time`> 365)] <- "long"
 ann$PFI_time[which(ann$`PFI_time`> 182 & ann$`PFI_time`< 365)] <- "short"
 ann$PFI_time[which(ann$`PFI_time`< 182)] <- "short"
-ann$PFI_time[which(ann$`PFI_time`== "56")] <- "short"
-ann$PFI_time[which(ann$`PFI_time`== "55")] <- "short"
-ann$Type <- as.character(ann$Type)
-ann$Type[which(ann$`Type`== "HR")] <- "HRwt"
-ann$Type[which(ann$`Type`== "BRCA1")] <- "BRCA1/2 mutated"
-ann$Type[which(ann$`Type`== "BRCA2")] <- "BRCA1/2 mutated"
+ann$Category <- as.character(ann$Category)
+ann$Category[which(ann$`Category`== "HR")] <- "HRwt"
+ann$Category[which(ann$`Category`== "BRCA1")] <- "BRCA1/2 mutated"
+ann$Category[which(ann$`Category`== "BRCA2")] <- "BRCA1/2 mutated"
 
 
 #SINGLE CELL DATA

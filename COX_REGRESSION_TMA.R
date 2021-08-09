@@ -7,21 +7,19 @@ library(survival)
 library(survminer)
 
 
-ann <- read.csv("C:/LocalData/ingamari/clinical_data/all_data_TMA.csv")
-ann <- ann[, c("Identifier","Type", "PFI_time")]
+ann <- read.csv("TMA_clinicaldata.csv")
+ann <- ann[, c("Identifier","Category", "PFI_time")]
 
 ann$PFI_time[which(ann$`PFI_time`> 365)] <- "long"
 ann$PFI_time[which(ann$`PFI_time`> 182 & ann$`PFI_time`< 365)] <- "short"
 ann$PFI_time[which(ann$`PFI_time`< 182)] <- "short"
-ann$PFI_time[which(ann$`PFI_time`== "56")] <- "short"
-ann$PFI_time[which(ann$`PFI_time`== "55")] <- "short"
-ann$Type <- as.character(ann$Type)
-ann$Type[which(ann$`Type`== "HR")] <- "HRwt"
-ann$Type[which(ann$`Type`== "BRCA1")] <- "BRCA1/2 mutated"
-ann$Type[which(ann$`Type`== "BRCA2")] <- "BRCA1/2 mutated"
+ann$Category <- as.character(ann$Category)
+ann$Category[which(ann$`Category`== "HR")] <- "HRwt"
+ann$Category[which(ann$`Category`== "BRCA1")] <- "BRCA1/2 mutated"
+ann$Category[which(ann$`Category`== "BRCA2")] <- "BRCA1/2 mutated"
 
 
-all_celltypes_24092020 <- read.csv("C:/LocalData/ingamari/cell_type_calling/TMA1_celltypes/data/all_cells_TMA_24092020.csv")
+all_celltypes_24092020 <- read.csv("TMA_annotated_single_cell_data.csv")
 
 all_celltypes_24092020$GlobalCellType <- as.character(all_celltypes_24092020$GlobalCellType)
 
@@ -338,8 +336,9 @@ cox.zph(res.cox)
 ################################################################################################################
 
 #FOR IMMUNE AND TUMOR DIVERSITY
+#get simpson diversity from "SIMPSON_CALC_TMA.R"
 
-simpson <- read.csv("C:/LocalData/ingamari/cell_type_calling/TMA1_celltypes/data/simpson_18092020.csv")
+simpson <- data.frame(simpson_tumor, simpson.i)
 
 median_SDI <- merge(simpson, all_data_TMA, by.x = "sample", by.y = "Identifier")
 

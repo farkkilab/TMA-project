@@ -6,12 +6,13 @@ library(FactoMineR)
 library(devtools)
 library(factoextra)
 
-all_data <- read.csv("C:/LocalData/ingamari/cell_type_calling/TMA1_celltypes/data/celltype_percentages_from_all_cells_18102020.csv")
+#get metacluster percentages with HR status info for example from "HEATMAPS_TMA.R"
+all_data <- metacluster_percentages
 
 all_data <- all_data[, -c(1)]
 colnames(all_data)[31] <- "Type"
 
-pca_data <- all_data_try
+pca_data <- all_data
 
 
 #all celltypes
