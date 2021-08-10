@@ -25,12 +25,11 @@ p_values <- p_values[, -c(1)]
 colnames(p_values) <- colnames(tumor_metaclusters)[8:31]
 p_values <- p_values[, c("cCasp3", "pSTAT1","Ki67", "PDL1", "P21")]
 
-ann <- read.csv("C:/LocalData/ingamari/clinical_data/all_data_TMA.csv")
-ann <- ann[, c("Identifier","Type", "PFI_time")]
+ann <- read.csv("TMA_clinicaldata.csv")
+ann <- ann[, c("Identifier","Category", "PFI_time")]
 ann$PFI_time[which(ann$`PFI_time`> 365)] <- "long"
 ann$PFI_time[which(ann$`PFI_time`> 182 & ann$`PFI_time`< 365)] <- "short"
 ann$PFI_time[which(ann$`PFI_time`< 182)] <- "short"
-ann$PFI_time[which(ann$`PFI_time`== "56")] <- "short"
 
 
 #tumor metaclusters
