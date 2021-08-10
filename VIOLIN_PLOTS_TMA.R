@@ -5,6 +5,18 @@ library(ggpubr)
 library(ggplot2)
 
 
+ann <- read.csv("TMA_clinicaldata.csv")
+ann <- ann[, c("Identifier","Category", "PFI_time")]
+
+ann$PFI_time[which(ann$`PFI_time`> 365)] <- "long"
+ann$PFI_time[which(ann$`PFI_time`> 182 & ann$`PFI_time`< 365)] <- "medium"
+ann$PFI_time[which(ann$`PFI_time`< 182)] <- "short"
+ann$Category <- as.character(ann$Category)
+ann$Category[which(ann$`Category`== "HR")] <- "HRwt"
+ann$Category[which(ann$`Category`== "BRCA1")] <- "BRCA1/2 mutated"
+ann$Category[which(ann$`Category`== "BRCA2")] <- "BRCA1/2 mutated"
+rownames(ann) <- ann$Identifier
+
 all_celltypes <- read.csv("TMA_annotated_single_cell_data.csv")
 all_celltypes$GlobalCellType <- as.character(all_celltypes$GlobalCellType)
 all_celltypes$Subtype <- as.character(all_celltypes$Subtype)
