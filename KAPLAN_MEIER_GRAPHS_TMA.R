@@ -10,9 +10,8 @@ library(data.table)
 library(dplyr)
 
 all_celltypes <- read.csv("TMA_annotated_single_cell_data.csv")
-all_celltypes_immune <- all_celltypes[which(all_celltypes$Subtype == "Immune"),]
 
-immune_clusters_sorted <- all_celltypes_immune %>%
+immune_clusters_sorted <- all_celltypes %>%
   group_by(Sample, GlobalCellType) %>%
   summarise (n = n()) %>%
   mutate(freq = n / sum(n))
