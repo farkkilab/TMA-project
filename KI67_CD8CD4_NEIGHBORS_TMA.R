@@ -13,8 +13,63 @@
 #cell ids for each cell type
 
 
-#get all_fractions from "NEIGHBORHOOD_DOTPLOT_TMA.R"
-all_neighbor_ids <- all_fractions
+setwd("neighbor_id_files")
+temp= list.files(pattern=".csv")
+myfiles = lapply(temp, read.csv)
+
+for (i in c(1:112)){
+  
+  myfiles[[i]]$core <- paste(temp)[i]
+}
+
+
+
+library(dplyr)
+
+all_neighbour_ids <- bind_rows(myfiles[[1]], myfiles[[2]], myfiles[[3]], myfiles[[4]],myfiles[[5]], myfiles[[6]], myfiles[[7]], myfiles[[8]],
+                               myfiles[[9]], myfiles[[10]], myfiles[[11]], myfiles[[12]],myfiles[[13]], myfiles[[14]], myfiles[[15]], myfiles[[16]],
+                               myfiles[[17]], myfiles[[18]], myfiles[[19]], myfiles[[20]],myfiles[[21]], myfiles[[22]], myfiles[[23]], myfiles[[24]],
+                               myfiles[[25]], myfiles[[26]], myfiles[[27]], myfiles[[28]],myfiles[[29]], myfiles[[30]], myfiles[[31]], myfiles[[32]],
+                               myfiles[[33]], myfiles[[34]], myfiles[[35]], myfiles[[36]],myfiles[[37]], myfiles[[38]], myfiles[[39]], myfiles[[40]],
+                               myfiles[[41]], myfiles[[42]], myfiles[[43]], myfiles[[44]],myfiles[[45]], myfiles[[46]], myfiles[[47]], myfiles[[48]],
+                               myfiles[[49]], myfiles[[50]], myfiles[[51]], myfiles[[52]],myfiles[[53]], myfiles[[54]], myfiles[[55]], myfiles[[56]],
+                               myfiles[[57]], myfiles[[58]], myfiles[[59]],myfiles[[60]], myfiles[[61]], myfiles[[62]],myfiles[[63]], myfiles[[64]], myfiles[[65]], myfiles[[66]],
+                               myfiles[[67]], myfiles[[68]], myfiles[[69]],myfiles[[70]], myfiles[[71]], myfiles[[72]],myfiles[[73]], myfiles[[74]], myfiles[[75]], myfiles[[76]],
+                               myfiles[[77]], myfiles[[78]], myfiles[[79]],myfiles[[80]], myfiles[[81]], myfiles[[82]],myfiles[[83]], myfiles[[84]], myfiles[[85]], myfiles[[86]],
+                               myfiles[[87]], myfiles[[88]], myfiles[[89]],myfiles[[90]], myfiles[[91]], myfiles[[92]],myfiles[[93]], myfiles[[94]], myfiles[[95]], myfiles[[96]],
+                               myfiles[[97]], myfiles[[98]], myfiles[[99]],myfiles[[100]], myfiles[[101]], myfiles[[102]],myfiles[[103]], myfiles[[104]], myfiles[[105]], myfiles[[106]],
+                               myfiles[[107]], myfiles[[108]], myfiles[[109]],myfiles[[110]],myfiles[[111]],myfiles[[112]])
+
+
+all_neighbour_ids <- all_neighbour_ids[, c(1, 2, 14, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24)]
+
+#all_neighbour_ids$core <- gsub("^.{0,4}", "", all_fractions$core)
+#all_fractions$core <- gsub("^.{0,14}", "", all_fractions$core)
+all_neighbour_ids$core <- substr(all_neighbour_ids$core, 1, nchar(all_neighbour_ids$core) -4)
+
+all_neighbour_ids[, 1] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 1])
+all_neighbour_ids[, 4] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 4])
+all_neighbour_ids[, 5] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 5])
+all_neighbour_ids[, 6] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 6])
+all_neighbour_ids[, 7] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 7])
+all_neighbour_ids[, 8] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 8])
+all_neighbour_ids[, 9] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 9])
+all_neighbour_ids[, 10] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 10])
+all_neighbour_ids[, 11] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 11])
+all_neighbour_ids[, 12] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 12])
+all_neighbour_ids[, 13] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 13])
+all_neighbour_ids[, 14] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 14])
+all_neighbour_ids[, 15] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 15])
+all_neighbour_ids[, 16] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 16])
+all_neighbour_ids[, 17] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 17])
+all_neighbour_ids[, 18] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 18])
+all_neighbour_ids[, 19] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 19])
+all_neighbour_ids[, 20] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 20])
+all_neighbour_ids[, 21] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 21])
+all_neighbour_ids[, 22] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 22])
+all_neighbour_ids[, 23] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 23])
+all_neighbour_ids[, 24] <- paste0(all_neighbour_ids$core, "_", all_neighbour_ids[, 24])
+
 
 prof_epi_center_cells <- all_neighbour_ids[which(all_neighbour_ids$cluster == "Proliferating epithelial"),]
 cd4_center_cells <- all_neighbour_ids[which(all_neighbour_ids$cluster == "CD4"),]
