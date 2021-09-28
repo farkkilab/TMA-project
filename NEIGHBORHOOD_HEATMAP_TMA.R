@@ -55,7 +55,45 @@ all_fractions$core <- substr(all_fractions$core, 1, nchar(all_fractions$core) -4
 
 all_fractions <- merge(all_fractions, tma_mapping, by.x = "core", by.y="TMA1", all=T)
 
+all_fractions[which(all_fractions$Category == "BRCA1"), "Category"] <- "BRCA1/2 mutated"
+all_fractions[which(all_fractions$Category == "BRCA2"), "Category"] <- "BRCA1/2 mutated"
 
+
+all_fractions_mean <- all_fractions %>% group_by(cluster, core) %>% summarise(Apoptotic = mean(Apoptotic),
+                                                                                 B.cells = mean(B.cells),
+                                                                                 CD11c.APC = mean(CD11c.APC),
+                                                                                 CD11c.CD163.IBA1.Macrophages = mean(CD11c.CD163.IBA1.Macrophages),
+                                                                                 CD163.IBA1.Macrophages = mean(CD163.IBA1.Macrophages),
+                                                                                 CD163.Macrophages= mean(CD163.Macrophages),
+                                                                                 CD4 = mean(CD4),
+                                                                                 CD8 = mean(CD8),
+                                                                                 EMT = mean(EMT),
+                                                                                 Endothelia = mean(Endothelia),
+                                                                                 Epithelial = mean(Epithelial),
+                                                                                 FOXP3.CD4.Tregs = mean(FOXP3.CD4.Tregs),
+                                                                                 High.PDL1 = mean(High.PDL1),
+                                                                                 High.Vimentin = mean(High.Vimentin),
+                                                                                 High.proliferative_Stroma = mean(High.proliferative_Stroma),
+                                                                                 Low.vimentin = mean(Low.vimentin),
+                                                                                 Low_eccentricity_medium_vimentin = mean(Low_eccentricity_medium_vimentin),
+                                                                                 Mesenchymal = mean(Mesenchymal),
+                                                                                 Non.proliferative_Stroma = mean(Non.proliferative_Stroma),
+                                                                                 Proliferating.EMT = mean(Proliferating.EMT),
+                                                                                 Proliferating.epithelial = mean(Proliferating.epithelial),
+                                                                                 Proliferative_Stroma = mean(Proliferative_Stroma),
+                                                                                 CD11c.IBA1.Macrophages = mean(CD11c.IBA1.Macrophages),
+                                                                                 IBA1.Macrophages = mean(IBA1.Macrophages),
+                                                                                 High.P21 = mean(High.P21),
+                                                                                 Hyperfunctional.epithelial = mean(Hyperfunctional.epithelial))
+
+
+all_fractions_mean <- merge(all_fractions_mean, tma_mapping[, c("Patient", "Category")], by= "Patient")
+
+
+all_fractions_mean[which(all_fractions_mean$Category == "BRCA1"), "Category"] <- "BRCA1/2 mutated"
+all_fractions_mean[which(all_fractions_mean$Category == "BRCA2"), "Category"] <- "BRCA1/2 mutated"
+
+all_fractions_mean_unique <- unique(all_fractions_mean)
 
 
 all_celltypes <- read.csv("TMA_annotated_single_cell_data.csv")
