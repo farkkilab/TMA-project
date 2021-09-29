@@ -2,6 +2,8 @@
 ####################### SIMPSON DIVERSITY INDEX CALCULATION #######################################################
 ###################################################################################################################
 
+#For Figures 2, 3 and Supplementary Figures 1, 2 and 3
+
 library(Hmisc)
 library(vegan)
 library(sm)
