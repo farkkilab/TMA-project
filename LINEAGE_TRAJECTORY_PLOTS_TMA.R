@@ -2,6 +2,8 @@
 ################################ LINEAGE TRAJECTORY PLOTS ####################################################################
 ##############################################################################################################################
 
+#For Figure 3 and Supplementary Figure 1
+
 #install.packages("devtools")
 #devtools::install_git("https://git.embl.de/velten/STEMNET/", build_vignettes=TRUE)
 
@@ -24,7 +26,7 @@ set.seed(1234)
 
 #create a vector of annotations and a matrix of gene expressions 
 
-all_celltypes_24092020 <- read.csv("C:/LocalData/ingamari/cell_type_calling/TMA1_celltypes/data/all_cells_TMA_24092020.csv")
+all_celltypes_24092020 <- read.csv("TMA_annotated_single_cell_data.csv")
 all_cells_tumor <- all_celltypes_24092020[which(all_celltypes_24092020$Subtype == "Tumor"),]
 
 
