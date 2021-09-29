@@ -1,6 +1,6 @@
 # TMA-project
 
-Codes used for the manuscript "Single-cell tumor-immune microenvironment of BRCA1/2 mutated high grade serous ovarian cancer"
+R-codes used for the manuscript "Single-cell tumor-immune microenvironment of BRCA1/2 mutated high grade serous ovarian cancer". The required packages to run the codes are presented on the beginning of each .R file.
 
 Data for plots can be found at SYNAPSE DOI: 10.7303/syn23747228 upon manuscript publication
 
@@ -8,6 +8,8 @@ TMA_annotated_single_cell_data.csv contains the cell id, core, patient, log-tran
 
 TMA_clinicaldata.csv contains clinical data for the patients including tumor HR-status, PFI time, PFI status, OS time and OS status, as well as immunohistochemical stainings for CD3, CD4 and CD8 antibodies.
 
-The R-codes were on run Windows 10, R version 3.6.1 
+
+
+The R-codes were on run Windows 10, R version 3.6.1.
 
 
