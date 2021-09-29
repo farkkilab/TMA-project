@@ -2,6 +2,8 @@
 ########################### CORRELATION SCATTER PLOTS WITH LOWESS REGRESSION ###############################################################
 ############################################################################################################################################
 
+#For Figure 2 and Supplementary Figure 2
+
 library(ggpubr)
 
 immune_from_immune <- read.csv("immune_percentages_from_immune.csv")
