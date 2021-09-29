@@ -110,7 +110,13 @@ for (i in seq_along(colnames(median_all))[c(2)]){
   
 }
 
-res.cox <- coxph(Surv(PFI_time, status_PFI) ~ CD4_neighbors, data =  all_data_TMA_cat)
+all_patients_cox <- all_data_TMA_cat
+more.than.2.years <- which(all_patients_cox$PFI_time > 800)
+all_patients_cox$PFI_time[more.than.2.years] <- 800
+all_patients_cox$status_PFI[more.than.2.years] <- 0
+
+
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ CD4_neighbors, data =  all_patients_cox)
 
 summary(res.cox)
 cox.zph(res.cox)
@@ -153,7 +159,13 @@ for (i in seq_along(colnames(median_all))[c(2)]){
   
 }
 
-res.cox <- coxph(Surv(PFI_time, status_PFI) ~ CD4_neighbors, data =  all_data_TMA_cat)
+all_patients_cox <- all_data_TMA_cat
+more.than.2.years <- which(all_patients_cox$PFI_time > 800)
+all_patients_cox$PFI_time[more.than.2.years] <- 800
+all_patients_cox$status_PFI[more.than.2.years] <- 0
+
+
+res.cox <- coxph(Surv(PFI_time, status_PFI) ~ CD4_neighbors, data =  all_patients_cox)
 
 summary(res.cox)
 cox.zph(res.cox)
