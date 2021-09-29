@@ -2,6 +2,7 @@
 ############################# KAPLAN MEIER CURVES FOR IMMUNE CELL PROPORTIONS #############################################################
 ###########################################################################################################################################
 
+#For Figures 2 and 3 and Supplementary Figures 2 and 3
 
 library(survival)
 library(survminer)
