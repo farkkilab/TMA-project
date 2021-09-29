@@ -2,6 +2,8 @@
 #VIOLIN PLOTS OF KI67 EXPRESSION IN PROLIFERATING EPITHELIAL CELLS AND THE NUMBER OF CD4 AND CD8+T-CELL NEIGHBORS
 ##########################################################################################################################################
 
+#For Figure 5 and Supplementary Figure 5
+
 #as data you need all neighbor ids
 
 #for each prof epi cell, calculate the count of cd4 or cd8 cells
