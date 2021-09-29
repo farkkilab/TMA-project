@@ -8,6 +8,8 @@ Data for plots can be found at SYNAPSE DOI: 10.7303/syn23747228 upon manuscript 
 
   - TMA_clinicaldata.csv contains clinical data for the patients including tumor HR-status, PFI time, PFI status, OS time and OS status, as well as immunohistochemical stainings for CD3, CD4 and CD8 antibodies.
 
+  - TMA_mapping.csv contains the TMA cores matched to their patient of origin.
+
 
 
 The R-codes were on run Windows 10, R version 3.6.1.
