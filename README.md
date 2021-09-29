@@ -4,9 +4,9 @@ R-codes used for the manuscript **"Single-cell tumor-immune microenvironment of 
 
 Data for plots can be found at SYNAPSE DOI: 10.7303/syn23747228 upon manuscript publication.
 
-'<addr>' TMA_annotated_single_cell_data.csv contains the cell id, core, patient, log-transformed marker expressions, x- and y-positions, and the eccentricity of each cell as well as its cell type annotation.
+*TMA_annotated_single_cell_data.csv contains the cell id, core, patient, log-transformed marker expressions, x- and y-positions, and the eccentricity of each cell as well as its cell type annotation.
 
-TMA_clinicaldata.csv contains clinical data for the patients including tumor HR-status, PFI time, PFI status, OS time and OS status, as well as immunohistochemical stainings for CD3, CD4 and CD8 antibodies.
+*TMA_clinicaldata.csv contains clinical data for the patients including tumor HR-status, PFI time, PFI status, OS time and OS status, as well as immunohistochemical stainings for CD3, CD4 and CD8 antibodies.
 
 
 
