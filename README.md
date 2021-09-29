@@ -1,6 +1,6 @@
 # TMA-project
 
-R-codes used for the manuscript **"Single-cell tumor-immune microenvironment of BRCA1/2 mutated high grade serous ovarian cancer"**. The required packages to run the codes are presented on the beginning of each .R file.
+R-codes used for the manuscript **"Single-cell tumor-immune microenvironment of BRCA1/2 mutated high grade serous ovarian cancer"**. The required packages to run the codes are presented on the beginning of each .R file. The figures to which the codes correspond to are also denoted in the beginning of each file.
 
 Data for plots can be found at SYNAPSE DOI: 10.7303/syn23747228 upon manuscript publication.
 
